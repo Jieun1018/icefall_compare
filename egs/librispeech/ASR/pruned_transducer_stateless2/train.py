@@ -387,7 +387,7 @@ def get_params() -> AttributeDict:
             "encoder_dim": 512,
             "nhead": 8,
             "dim_feedforward": 2048,
-            "num_encoder_layers": 18,
+            "num_encoder_layers": 16,
             # "num_encoder_layers": 12,
             # parameters for decoder
             "decoder_dim": 512,
@@ -899,6 +899,7 @@ def run(rank, world_size, args):
 
     logging.info("About to create model")
     model = get_transducer_model(params)
+    print(model)
 
     num_param = sum([p.numel() for p in model.parameters()])
     logging.info(f"Number of model parameters: {num_param}")
