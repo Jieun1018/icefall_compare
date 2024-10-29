@@ -387,7 +387,8 @@ def get_params() -> AttributeDict:
             "encoder_dim": 512,
             "nhead": 8,
             "dim_feedforward": 2048,
-            "num_encoder_layers": 12,
+            "num_encoder_layers": 18,
+            # "num_encoder_layers": 12,
             # parameters for decoder
             "decoder_dim": 512,
             # parameters for joiner

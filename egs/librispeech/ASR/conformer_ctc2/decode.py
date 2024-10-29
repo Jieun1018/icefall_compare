@@ -136,6 +136,14 @@ def get_parser():
         "Actually only the models with epoch number of `epoch-avg` and "
         "`epoch` are loaded for averaging. ",
     )
+    
+    parser.add_argument(
+        "--num-encoder-layers",
+        type=int,
+        default=12,
+        help="""Number of decoder layer of transformer encoder.
+        """,
+    )
 
     parser.add_argument(
         "--num-decoder-layers",
@@ -389,6 +397,8 @@ def decode_one_batch(
 
     nnet_output, memory, memory_key_padding_mask = model(feature, supervisions)
     # nnet_output is (N, T, C)
+    #print(nnet_output)
+    #exit()
 
     supervision_segments = torch.stack(
         (
@@ -435,12 +445,15 @@ def decode_one_batch(
         #
         # token_ids is a lit-of-list of IDs
         token_ids = get_texts(best_path)
+        #print('11111', token_ids)
 
         # hyps is a list of str, e.g., ['xxx yyy zzz', ...]
         hyps = bpe_model.decode(token_ids)
+        #print('22222', hyps)
 
         # hyps is a list of list of str, e.g., [['xxx', 'yyy', 'zzz'], ... ]
         hyps = [s.split() for s in hyps]
+        #print('33333', hyps)
         key = "ctc-decoding"
         return {key: hyps}
 
@@ -453,9 +466,10 @@ def decode_one_batch(
 
         # hyps is a list of str, e.g., ['xxx yyy zzz', ...]
         hyps = bpe_model.decode(hyps)
-
+        #print('111111', hyps)
         # hyps is a list of list of str, e.g., [['xxx', 'yyy', 'zzz'], ... ]
         hyps = [s.split() for s in hyps]
+        #print('222222', hyps)
         key = "ctc-greedy-search"
         return {key: hyps}
 
@@ -493,7 +507,10 @@ def decode_one_batch(
             key = f"no_rescore-nbest-scale-{params.nbest_scale}-{params.num_paths}"  # noqa
 
         hyps = get_texts(best_path)
+        #print('1-best ids', hyps)
         hyps = [[word_table[i] for i in ids] for ids in hyps]
+        #print('1-best 222', hyps)
+        #exit()
         return {key: hyps}
 
     assert params.method in [
@@ -955,14 +972,19 @@ def main():
     args.return_cuts = True
     librispeech = LibriSpeechAsrDataModule(args)
 
+    dev_clean_cuts = librispeech.dev_clean_cuts()
+    dev_other_cuts = librispeech.dev_other_cuts()
     test_clean_cuts = librispeech.test_clean_cuts()
     test_other_cuts = librispeech.test_other_cuts()
 
+
+    dev_clean_dl = librispeech.test_dataloaders(dev_clean_cuts)
+    dev_other_dl = librispeech.test_dataloaders(dev_other_cuts)
     test_clean_dl = librispeech.test_dataloaders(test_clean_cuts)
     test_other_dl = librispeech.test_dataloaders(test_other_cuts)
 
-    test_sets = ["test-clean", "test-other"]
-    test_dl = [test_clean_dl, test_other_dl]
+    test_sets = ["dev-clean", "dev-other", "test-clean", "test-other"]
+    test_dl = [dev_clean_dl, dev_other_dl, test_clean_dl, test_other_dl]
 
     for test_set, test_dl in zip(test_sets, test_dl):
         results_dict = decode_dataset(

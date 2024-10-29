@@ -207,6 +207,15 @@ def get_parser():
     )
 
     parser.add_argument(
+        "--num-encoder-layers",
+        type=int,
+        default=12,
+        help="""Number of encoder layer of transformer decoder.
+        """,
+    )
+
+
+    parser.add_argument(
         "--seed",
         type=int,
         default=42,
@@ -868,6 +877,8 @@ def run(rank, world_size, args):
         num_decoder_layers=params.num_decoder_layers,
     )
 
+    #print(params.num_encoder_layers)
+    #print(params.num_decoder_layers)
     print(model)
 
     num_param = sum([p.numel() for p in model.parameters()])
