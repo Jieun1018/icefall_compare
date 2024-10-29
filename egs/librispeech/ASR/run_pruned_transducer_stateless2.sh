@@ -1,0 +1,11 @@
+./pruned_transducer_stateless2/train.py \
+  --exp-dir pruned_transducer_stateless2/exp \
+  --full-libri 1 \
+  --dynamic-chunk-training 1 \
+  --causal-convolution 1 \
+  --short-chunk-size 20 \
+  --num-left-chunks 4 \
+  --max-duration 1200 \
+  --world-size 8 \
+  --start-epoch 0 \
+  --num-epochs 30
